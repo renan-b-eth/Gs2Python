@@ -29,7 +29,7 @@ titulo.grid(row=0, column=0, columnspan=2)
 #fundo = PhotoImage(file="logo8.png")
 #fundo1 = Label(root, image=fundo).place(x=1, y=1, relheight=1, relwidth=1)
 #valor_inicial = 0
-texto2 = tk.Label(root, text="JSON DADOS:", font=("Arial", 15, "bold"))
+texto2 = tk.Label(root, text="LEITURA DOS DATAFRAME", font=("Arial", 15, "bold"))
 texto2.config(background="white", foreground="#1163F0", justify=tk.CENTER, padx=50, pady=50)
 texto2.grid(row=2, column=1, columnspan=3)
 
