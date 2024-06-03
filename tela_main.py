@@ -92,6 +92,28 @@ def ler_cvs2(cvs):
     
     return lista
 
+def select(tabela):
+    # Cria um cursor
+    cursor = connection.cursor()
+    try:
+    # Executa uma instrução SELECT
+        cursor.execute(f"SELECT * FROM {tabela}")
+        rows = cursor.fetchall()
+        texto3.config(text=rows)
+        for row in rows:
+            dic = [] 
+            dic.append(rows) # coloca todas as linhas num dicionario
+        print(dic)
+        # Exibindo a caixa de mensagem
+        messagebox.showinfo("DIC", dic)
+        #print(df)
+        #print("FINAL")
+    except oracledb.DatabaseError as e:
+        error, = e.args
+        print(f"ERRO: {error.code} - {error.message}")
+    finally:
+        cursor.close()
+
 
 # UPDATE E DELETE não precisa.
 def insert_1():
@@ -120,7 +142,7 @@ def insert_1():
             ":poluicao_agua": poluicao_agua, 
         },
     )
-    mensagem("INSERT IA_2 OK","DADOS IA_2 INSERIDO COM SUCESSO!")
+    mensagem("INSERT IA_2 OK", f"DADOS IA_2 INSERIDO COM SUCESSO !{cidade, regiao, qa_ar, poluicao_agua}")
     connection.commit()
 
 def insert_2():
@@ -152,7 +174,7 @@ def insert_2():
             ":pl": pl,
         },
     )
-    mensagem("INSERT IA OK","DADOS IA INSERIDO COM SUCESSO!")
+    mensagem("INSERT IA OK",f"DADOS IA INSERIDO COM SUCESSO ! {entidade, codigo, ano, pr, pq, pl}")
     connection.commit()
     
     return 
@@ -194,33 +216,19 @@ def quemSomos():
 def acessarDiretorio(diretorio):
    return os.startfile(diretorio)
 
- 
-opcao1 = Menu(menu, tearoff=0)
-opcao1.add_command(label= "ACESSAR LEITURA DE CVS", command= lambda: criarBotao2())
-
 crud = Menu(menu, tearoff=0)
-crud.add_command(label= "SELECT IA1", command= lambda: quemSomos())
-crud.add_command(label= "SELECT IA2", command= lambda: quemSomos())
+crud.add_command(label= "SELECT IA1", command= lambda: select("BL_IA"))
+crud.add_command(label= "SELECT IA2", command= lambda: select("BL_IA2"))
 crud.add_command(label= "INSERT IA1", command= lambda: insert_1())
 crud.add_command(label= "INSERT IA2", command= lambda: insert_2())
 
-opcao2 = Menu(menu, tearoff=0)
-opcao2.add_command(label= "Acessar Camera Mouse", command= lambda: criarBotao())
-
-opcao3 = Menu(menu, tearoff=0)
-opcao3.add_command(label= "Acessar Teclado Virtual", command=lambda: acessarDiretorio('C:\\Windows\\System32\\osk.exe'))
- 
 sobrenos = Menu(menu, tearoff=0)
 sobrenos.add_command(label= "Quem somos", command=quemSomos)
  
 sair = Menu(menu, tearoff=0)
 sair.add_command(label="Sair", command=exit)
  
- 
-menu.add_cascade(label = "ACESSAR LEITURA DE CVS      ", menu= opcao1)
 menu.add_cascade(label = "CRUD      ", menu= crud)
-menu.add_cascade(label = "Acessibilidade - Camera Mouse      ", menu= opcao2)
-menu.add_cascade(label = "Acessibilidade - Teclado Virtual      ", menu= opcao3)
 menu.add_cascade(label = "Quem somos      ", menu= sobrenos)
 menu.add_cascade(label = "Sair", menu= sair)
  
