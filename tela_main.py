@@ -92,7 +92,6 @@ def ler_cvs2(cvs):
     
     return lista
 
-print(ler_cvs2("destino-plastico.csv"))
 
 # UPDATE E DELETE não precisa.
 def insert_1():
@@ -130,32 +129,33 @@ def insert_2():
     #regiao = input_usuario("Regiao", "Insira a Regiao")
     #qa_ar =  input_usuario("Qualidade ar", "Insira a qualidade do ar")
     #poluicao_agua = input_usuario("Poluicao", "Insira a poluição ar:")
-
-    leitura2 = ler_cvs2("destino-plastico.csv")
-
-    entidade = leitura2[0] # pega o valor cidade
-    codigo = leitura2[1] # pega o valor regiao
-    ano = leitura2[2] # pega o valor qa
-    part_reg = leitura2[3] 
-    part_qm = leitura2[4] 
-    part_lx = leitura2[5]
-
+    leitura3 = ler_cvs2("destino-plastico.csv")
+    entidade = leitura3[0]
+    codigo = leitura3[1]
+    ano = int(leitura3[2])
+    pr = leitura3[3]
+    pq = leitura3[4]
+    pl = leitura3[5]
+    #leitura2 = ler_cvs2("destino-plastico.csv")
+    print()
     cursor = connection.cursor()
 
     cursor.execute(
-        f"INSERT INTO BL_IA (id_ia, ENTIDADE_IA, CODIGO_IA, ANO_IA, PART_REGM_LX_TOTAL_IA, PART_QMA_LX_TOTAL_IA, PART_LX_DESC_TOTAL_IA) VALUES (:id, :entidade, :codigo, :ano, :part_reg, :part_qm, part_lx)",
+        f"INSERT INTO BL_IA (id_ia, entidade_ia, codigo_ia, ano_ia, PART_REGM_LX_TOTAL_IA, PART_QMA_LX_TOTAL_IA, PART_LX_DESC_TOTAL_IA) VALUES (:id, :entidade, :codigo, :ano, :pr, :pq, :pl)",
         { 
             ":id": id,
             ":entidade": entidade,
             ":codigo": codigo,
             ":ano": ano,
-            ":part_reg": part_reg, 
-            ":part_qm": part_qm, 
-            ":part_lx": part_lx 
+            ":pr": pr,
+            ":pq": pq,
+            ":pl": pl,
         },
     )
-    mensagem("INSERT IA_ OK","DADOS IA_1 INSERIDO COM SUCESSO!")
+    mensagem("INSERT IA OK","DADOS IA INSERIDO COM SUCESSO!")
     connection.commit()
+    
+    return 
 
 def retornar_hora_atual():
     data = datetime.datetime.now()
