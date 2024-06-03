@@ -8,11 +8,17 @@ import oracledb
 import pandas as pd 
 from tkinter.simpledialog import askstring
 import datetime
+import random
+import re
 
 
 conexao = conexao.ConexaoBanco.conexao_banco("RM553228", "130201") # conexão feita encapsulando
 
+dsnStr = oracledb.makedsn("oracle.fiap.com.br", 1521, "ORCL")
+connection = oracledb.connect(user="RM553228", password="130201", dsn=dsnStr)
+
 root = tk.Tk()
+
 
 #criacao menu
 menu= Menu(root)
@@ -38,6 +44,118 @@ texto3.config(background="white", foreground="#1163F0", justify=tk.CENTER, padx=
 texto3.grid(row=3, column=1, columnspan=3)
 
 root.resizable(False, False)
+
+def ler_cvs(cvs, tamanho):
+    df = pd.read_csv(cvs)
+    df_sem_nan = df.dropna() # remove os nan
+    linha_aleatoria = random.randint(0, tamanho)
+    cidade = df_sem_nan.loc[linha_aleatoria, 'Cidade']
+    regiao = df_sem_nan.loc[linha_aleatoria,' Regiao'] # precisa do espaço se não, da erro
+    qa = df_sem_nan.loc[linha_aleatoria,' Qualidade do Ar']
+    pa = df_sem_nan.loc[linha_aleatoria,' Poluição da Água']
+    
+    lista = []
+
+    lista.append(cidade)
+    lista.append(regiao)
+    lista.append(qa)
+    lista.append(pa)
+    
+    return lista
+
+def ler_cvs2(cvs):
+    df = pd.read_csv(cvs)
+    df_sem_nan = df.dropna() # remove os nan
+    linha_aleatoria = random.randint(0, 100)
+
+    entidade = df_sem_nan.iloc[linha_aleatoria]['Entidade']
+    codigo = df_sem_nan.iloc[linha_aleatoria][' Codigo']
+    ano = df_sem_nan.iloc[linha_aleatoria][' Ano']
+    pc = df_sem_nan.iloc[linha_aleatoria][' Participacao da reciclagem do lixo total regional']
+    pq = df_sem_nan.iloc[linha_aleatoria][' Participacao da queima do lixo total regional']
+    pl = df_sem_nan.iloc[linha_aleatoria][' Participacao do lixo descartado e mal gerido do total regional']
+    #codigo = df_sem_nan.loc[linha_aleatoria,' Código'] # precisa do espaço se não, da erro
+    #ano = df_sem_nan.loc[linha_aleatoria,' Ano']
+    
+    
+    lista = []
+
+    lista.append(entidade)
+    lista.append(codigo)
+    lista.append(ano)
+    lista.append(pc)
+    lista.append(pq)
+    lista.append(pl)
+    #lista.append(codigo)
+    #lista.append(ano)
+
+    
+    return lista
+
+print(ler_cvs2("destino-plastico.csv"))
+
+# UPDATE E DELETE não precisa.
+def insert_1():
+    id = random.randint(10,10000)
+    #cidade = input_usuario("Cidade", "Insira a cidade:")
+    #regiao = input_usuario("Regiao", "Insira a Regiao")
+    #qa_ar =  input_usuario("Qualidade ar", "Insira a qualidade do ar")
+    #poluicao_agua = input_usuario("Poluicao", "Insira a poluição ar:")
+
+    leitura = ler_cvs("poluicao-agua-cidades.csv", 10)
+
+    cidade = leitura[0] # pega o valor cidade
+    regiao = leitura[1] # pega o valor regiao
+    qa_ar = leitura[2] # pega o valor qa
+    poluicao_agua = leitura[3] # pega o pa
+
+    cursor = connection.cursor()
+
+    cursor.execute(
+        f"INSERT INTO BL_IA2 (id_ia2, cidade_ia2, regiao_ia2, ent_qa_ar_ia2, pol_agua_ia2) VALUES (:id, :cidade, :regiao, :qualidade_ar, :poluicao_agua)",
+        { 
+            ":id": id,
+            ":cidade": cidade,
+            ":regiao": regiao,
+            ":qualidade_ar": qa_ar,
+            ":poluicao_agua": poluicao_agua, 
+        },
+    )
+    mensagem("INSERT IA_2 OK","DADOS IA_2 INSERIDO COM SUCESSO!")
+    connection.commit()
+
+def insert_2():
+    id = random.randint(10,10000)
+    #cidade = input_usuario("Cidade", "Insira a cidade:")
+    #regiao = input_usuario("Regiao", "Insira a Regiao")
+    #qa_ar =  input_usuario("Qualidade ar", "Insira a qualidade do ar")
+    #poluicao_agua = input_usuario("Poluicao", "Insira a poluição ar:")
+
+    leitura2 = ler_cvs2("destino-plastico.csv")
+
+    entidade = leitura2[0] # pega o valor cidade
+    codigo = leitura2[1] # pega o valor regiao
+    ano = leitura2[2] # pega o valor qa
+    part_reg = leitura2[3] 
+    part_qm = leitura2[4] 
+    part_lx = leitura2[5]
+
+    cursor = connection.cursor()
+
+    cursor.execute(
+        f"INSERT INTO BL_IA (id_ia, ENTIDADE_IA, CODIGO_IA, ANO_IA, PART_REGM_LX_TOTAL_IA, PART_QMA_LX_TOTAL_IA, PART_LX_DESC_TOTAL_IA) VALUES (:id, :entidade, :codigo, :ano, :part_reg, :part_qm, part_lx)",
+        { 
+            ":id": id,
+            ":entidade": entidade,
+            ":codigo": codigo,
+            ":ano": ano,
+            ":part_reg": part_reg, 
+            ":part_qm": part_qm, 
+            ":part_lx": part_lx 
+        },
+    )
+    mensagem("INSERT IA_ OK","DADOS IA_1 INSERIDO COM SUCESSO!")
+    connection.commit()
 
 def retornar_hora_atual():
     data = datetime.datetime.now()
@@ -81,11 +199,10 @@ opcao1 = Menu(menu, tearoff=0)
 opcao1.add_command(label= "ACESSAR LEITURA DE CVS", command= lambda: criarBotao2())
 
 crud = Menu(menu, tearoff=0)
-crud.add_command(label= "SELECT", command= lambda: quemSomos())
-crud.add_command(label= "SELECT WHERE", command= lambda: quemSomos())
-crud.add_command(label= "INSERT", command= lambda: quemSomos())
-crud.add_command(label= "UPDATE", command= lambda: quemSomos())
-crud.add_command(label= "DELETE", command= lambda: quemSomos())
+crud.add_command(label= "SELECT IA1", command= lambda: quemSomos())
+crud.add_command(label= "SELECT IA2", command= lambda: quemSomos())
+crud.add_command(label= "INSERT IA1", command= lambda: insert_1())
+crud.add_command(label= "INSERT IA2", command= lambda: insert_2())
 
 opcao2 = Menu(menu, tearoff=0)
 opcao2.add_command(label= "Acessar Camera Mouse", command= lambda: criarBotao())
